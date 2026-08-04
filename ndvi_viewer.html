@@ -23,14 +23,14 @@
     esriConfig.request.trustedServers.push("lou-yi-ting.github.io");
     const mode=new URLSearchParams(location.search).get("mode")||"2024";
     const cfg={
-      "2001":{file:"assets/ndvi/ndvi_2001_project_clip_3857.png",title:"2001 年工程区 NDVI",sub:"年度最大 NDVI｜工程联合范围外透明｜与 2024 年使用同一值域和色带",kind:"ndvi",ticks:["-0.14","0.41","0.96"]},
-      "2024":{file:"assets/ndvi/ndvi_2024_project_clip_3857.png",title:"2024 年工程区 NDVI",sub:"年度最大 NDVI｜工程联合范围外透明｜与 2001 年使用同一值域和色带",kind:"ndvi",ticks:["-0.14","0.41","0.96"]},
-      "trend":{file:"assets/ndvi/ndvi_trend_project_clip_3857.png",title:"2001-2024 年 NDVI 趋势",sub:"5 km 网格年变化率｜棕红表示下降，蓝色表示上升｜工程范围外透明",kind:"trend",ticks:["下降","接近稳定","上升"]}
+      "2001":{file:"ndvi_2001_project_clip_3857.png",title:"2001 年工程区 NDVI",sub:"年度最大 NDVI｜工程联合范围外透明｜与 2024 年使用同一值域和色带",kind:"ndvi",ticks:["-0.14","0.41","0.96"]},
+      "2024":{file:"ndvi_2024_project_clip_3857.png",title:"2024 年工程区 NDVI",sub:"年度最大 NDVI｜工程联合范围外透明｜与 2001 年使用同一值域和色带",kind:"ndvi",ticks:["-0.14","0.41","0.96"]},
+      "trend":{file:"ndvi_trend_project_clip_3857.png",title:"2001-2024 年 NDVI 趋势",sub:"5 km 网格年变化率｜棕红表示下降，蓝色表示上升｜工程范围外透明",kind:"trend",ticks:["下降","接近稳定","上升"]}
     }[mode];
     document.querySelector(`[data-mode="${mode}"]`).classList.add("active");
     document.querySelectorAll("[data-mode]").forEach(a=>a.href=`?mode=${a.dataset.mode}`);
     title.textContent=cfg.title;subtitle.textContent=cfg.sub;legend.classList.add(cfg.kind);[lo,mid,hi].forEach((e,i)=>e.textContent=cfg.ticks[i]);
-    fetch("assets/ndvi/bounds_3857.json").then(r=>r.json()).then(meta=>{
+    fetch("bounds_3857.json").then(r=>r.json()).then(meta=>{
       const extent=new Extent({xmin:meta.extent[0],ymin:meta.extent[1],xmax:meta.extent[2],ymax:meta.extent[3],spatialReference:{wkid:3857}});
       const base=new WebTileLayer({urlTemplate:"https://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineCommunity/MapServer/tile/{level}/{row}/{col}",copyright:"GeoQ 全国基础底图"});
       const image=new ImageElement({image:cfg.file,georeference:{type:"extent-and-rotation",extent}});
