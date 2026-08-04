@@ -27,7 +27,7 @@ const projects={
 const legend=document.getElementById("legend"),status=document.getElementById("status");
 Object.entries(projects).forEach(([n,v])=>legend.insertAdjacentHTML("beforeend",`<div class="item"><i class="sw" style="background:${v.c}"></i><span>${v.s}</span></div>`));
 const map=L.map("map",{zoomControl:true,minZoom:3,maxZoom:10});
-L.tileLayer("https://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineCommunity/MapServer/tile/{z}/{y}/{x}",{attribution:"GeoQ 全国基础底图"}).addTo(map);
+L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"OpenStreetMap",maxZoom:19}).addTo(map);
 fetch("projects.geojson").then(r=>r.json()).then(data=>{
  const layer=L.geoJSON(data,{style:f=>{const p=projects[f.properties.PROJ_NAME];return{color:p?.c||"#67776e",weight:1.6,fillColor:p?.c||"#67776e",fillOpacity:.68}},onEachFeature:(f,l)=>{
    const name=f.properties.PROJ_NAME,p=projects[name]; if(!p)return;
