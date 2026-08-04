@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>八项森林工程交互总览</title>
-  <link rel="stylesheet" href="https://js.geoscene.cn/4.30/esri/themes/light/main.css">
-  <script src="https://js.geoscene.cn/4.30/"></script>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.30/esri/themes/light/main.css">
+  <script src="https://js.arcgis.com/4.30/"></script>
   <style>
     html,body,#viewDiv{width:100%;height:100%;margin:0}body{font-family:"Microsoft YaHei",sans-serif;background:#eef1eb}
     .guide{position:absolute;z-index:5;left:18px;top:18px;width:min(365px,calc(100% - 36px));padding:14px 16px;border:1px solid rgba(42,75,60,.16);border-radius:14px;background:rgba(255,255,255,.94);box-shadow:0 10px 30px rgba(31,62,48,.18);backdrop-filter:blur(8px)}
@@ -18,7 +18,8 @@
   <div id="viewDiv"></div><div id="tip" class="tip"></div>
   <section class="guide"><h1>八种环境，八种守护</h1><p>移动鼠标查看工程名称；点击任一彩色工程区，直接进入对应专题网页。</p><p id="status" class="status">请选择地图中的彩色区域</p><div id="legend" class="legend"></div></section>
   <script>
-  require(["esri/WebMap","esri/views/MapView"],function(WebMap,MapView){
+  require(["esri/config","esri/WebMap","esri/views/MapView"],function(esriConfig,WebMap,MapView){
+    esriConfig.portalUrl="https://www.geosceneonline.cn/geoscene";
     const projects={
       '三北防护林体系建设工程':{c:'#C98B2E',u:'01_sanbei_三北防护林体系建设工程.html'},
       '太行山绿化工程':{c:'#607D45',u:'02_taihang_太行山绿化工程.html'},
