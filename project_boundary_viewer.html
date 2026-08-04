@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>八项森林工程交互总览</title>
+  <link rel="stylesheet" href="https://js.geoscene.cn/4.30/esri/themes/light/main.css">
+  <script src="https://js.geoscene.cn/4.30/"></script>
+  <style>
+    html,body,#viewDiv{width:100%;height:100%;margin:0}body{font-family:"Microsoft YaHei",sans-serif;background:#eef1eb}
+    .guide{position:absolute;z-index:5;left:18px;top:18px;width:min(365px,calc(100% - 36px));padding:14px 16px;border:1px solid rgba(42,75,60,.16);border-radius:14px;background:rgba(255,255,255,.94);box-shadow:0 10px 30px rgba(31,62,48,.18);backdrop-filter:blur(8px)}
+    h1{margin:0 0 6px;font-size:18px;color:#173d2b}.guide p{margin:0;color:#63726a;font-size:12px;line-height:1.65}.status{margin-top:8px!important;color:#315d47!important;font-weight:700}.legend{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-top:11px}.item{display:flex;gap:7px;align-items:center;color:#46564e;font-size:11px}.sw{width:11px;height:11px;border-radius:3px;flex:0 0 auto}
+    .tip{position:absolute;z-index:6;display:none;pointer-events:none;padding:7px 10px;border-radius:8px;background:rgba(21,48,37,.92);color:white;font-size:12px;box-shadow:0 5px 18px rgba(0,0,0,.2);transform:translate(12px,12px)}
+    @media(max-width:640px){.guide{left:10px;top:10px;width:calc(100% - 20px);padding:10px 12px}.legend{display:none}h1{font-size:16px}}
+  </style>
+</head>
+<body>
+  <div id="viewDiv"></div><div id="tip" class="tip"></div>
+  <section class="guide"><h1>八种环境，八种守护</h1><p>移动鼠标查看工程名称；点击任一彩色工程区，直接进入对应专题网页。</p><p id="status" class="status">请选择地图中的彩色区域</p><div id="legend" class="legend"></div></section>
+  <script>
+  require(["esri/WebMap","esri/views/MapView"],function(WebMap,MapView){
+    const projects={
+      '三北防护林体系建设工程':{c:'#C98B2E',u:'01_sanbei_三北防护林体系建设工程.html'},
+      '太行山绿化工程':{c:'#607D45',u:'02_taihang_太行山绿化工程.html'},
+      '辽河流域防护林体系建设工程':{c:'#3C92A8',u:'03_liaohe_辽河流域防护林体系建设工程.html'},
+      '黄河中游防护林体系建设工程':{c:'#B46A3C',u:'04_huanghe_黄河中游防护林体系建设工程.html'},
+      '淮河太湖流域防护林体系建设工程':{c:'#5A9F78',u:'05_huaihu_淮河太湖流域防护林体系建设工程.html'},
+      '长江中上游防护林体系建设工程':{c:'#2F6F73',u:'06_changjiang_长江中上游防护林体系建设工程.html'},
+      '珠江流域防护林体系建设工程':{c:'#3FA56B',u:'07_zhujiang_珠江流域防护林体系建设工程.html'},
+      '沿海防护林体系建设工程':{c:'#4C78A8',u:'08_yanhai_沿海防护林体系建设工程.html'}
+    };
+    const legend=document.getElementById('legend');Object.entries(projects).forEach(([n,v])=>legend.insertAdjacentHTML('beforeend',`<div class="item"><i class="sw" style="background:${v.c}"></i><span>${n.replace('防护林体系建设工程','防护林').replace('绿化工程','绿化')}</span></div>`));
+    const map=new WebMap({portalItem:{id:'0af4c0163e11498abef4add5b16454ee'}});
+    const view=new MapView({container:'viewDiv',map,zoom:3,center:[104,36],popupEnabled:false,constraints:{minZoom:2,maxZoom:9}});
+    const status=document.getElementById('status'),tip=document.getElementById('tip');let boundary,highlight,lastName='';
+    map.when(()=>{map.layers.forEach(l=>{l.visible=l.title==='八大森林工程候选边界_用于故事图';if(l.visible)boundary=l});return boundary&&boundary.load()}).then(()=>{if(boundary){view.goTo(boundary.fullExtent.expand(1.04));return view.whenLayerView(boundary)}}).then(layerView=>{
+      view.on('pointer-move',async e=>{const hit=await view.hitTest(e,{include:boundary});const g=hit.results.find(r=>r.graphic&&r.graphic.layer===boundary)?.graphic;const name=g?.attributes?.PROJ_NAME;
+        if(name&&projects[name]){view.container.style.cursor='pointer';status.textContent='点击进入：'+name;tip.textContent=name;tip.style.display='block';tip.style.left=e.x+'px';tip.style.top=e.y+'px';if(name!==lastName){highlight?.remove();highlight=layerView.highlight(g);lastName=name}}
+        else{view.container.style.cursor='default';status.textContent='请选择地图中的彩色区域';tip.style.display='none';highlight?.remove();highlight=null;lastName=''}
+      });
+      view.on('click',async e=>{const hit=await view.hitTest(e,{include:boundary});const g=hit.results.find(r=>r.graphic&&r.graphic.layer===boundary)?.graphic;const item=projects[g?.attributes?.PROJ_NAME];if(item)window.open(new URL(item.u,location.href).href,'_blank','noopener')});
+    });
+  });
+  </script>
+</body></html>
