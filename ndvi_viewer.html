@@ -1,44 +1,5 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>八项森林工程 NDVI 交互地图</title>
-  <link rel="stylesheet" href="https://js.arcgis.com/4.30/esri/themes/light/main.css">
-  <script src="https://js.arcgis.com/4.30/"></script>
-  <style>
-    html,body,#viewDiv{height:100%;width:100%;margin:0}body{font-family:"Microsoft YaHei",sans-serif;background:#eef2ef}
-    .panel{position:absolute;z-index:5;left:18px;top:18px;width:min(365px,calc(100% - 36px));padding:14px 16px;border:1px solid rgba(31,63,46,.16);border-radius:8px;background:rgba(255,255,255,.94);box-shadow:0 8px 26px rgba(25,54,39,.18);backdrop-filter:blur(8px)}
-    h1{font-size:18px;margin:0 0 6px;color:#173d2b}.sub{font-size:12px;line-height:1.65;color:#596a60}.legend{height:10px;border-radius:3px;margin-top:10px}.legend.ndvi{background:linear-gradient(90deg,#a50026,#f46d43,#ffffbf,#66bd63,#006837)}.legend.trend{background:linear-gradient(90deg,#b2182b,#ef8a62,#f7f7f7,#67a9cf,#2166ac)}
-    .ticks{display:flex;justify-content:space-between;font-size:11px;color:#647068;margin-top:4px}.modes{display:flex;gap:6px;margin-top:11px}.modes a{padding:5px 9px;border:1px solid #bac8bf;border-radius:4px;color:#264d39;text-decoration:none;font-size:12px;background:#fff}.modes a.active{background:#275b42;color:#fff;border-color:#275b42}
-    @media(max-width:640px){.panel{left:10px;right:10px;top:10px;width:auto;padding:10px 12px}h1{font-size:16px}.sub{font-size:11px}}
-  </style>
-</head>
-<body>
-  <div id="viewDiv"></div>
-  <section class="panel"><h1 id="title"></h1><div class="sub" id="subtitle"></div><div id="legend" class="legend"></div><div class="ticks"><span id="lo"></span><span id="mid"></span><span id="hi"></span></div><nav class="modes"><a data-mode="2001">2001</a><a data-mode="2024">2024</a><a data-mode="trend">变化趋势</a></nav></section>
-  <script>
-  require(["esri/config","esri/Map","esri/views/MapView","esri/layers/MediaLayer","esri/layers/support/ImageElement","esri/geometry/Extent","esri/layers/WebTileLayer"],
-  function(esriConfig,Map,MapView,MediaLayer,ImageElement,Extent,WebTileLayer){
-    esriConfig.request.trustedServers.push("lou-yi-ting.github.io");
-    const mode=new URLSearchParams(location.search).get("mode")||"2024";
-    const cfg={
-      "2001":{file:"assets/ndvi/ndvi_2001_project_clip_3857.png",title:"2001 年工程区 NDVI",sub:"年度最大 NDVI｜工程联合范围外透明｜与 2024 年使用同一值域和色带",kind:"ndvi",ticks:["-0.14","0.41","0.96"]},
-      "2024":{file:"assets/ndvi/ndvi_2024_project_clip_3857.png",title:"2024 年工程区 NDVI",sub:"年度最大 NDVI｜工程联合范围外透明｜与 2001 年使用同一值域和色带",kind:"ndvi",ticks:["-0.14","0.41","0.96"]},
-      "trend":{file:"assets/ndvi/ndvi_trend_project_clip_3857.png",title:"2001-2024 年 NDVI 趋势",sub:"5 km 网格年变化率｜棕红表示下降，蓝色表示上升｜工程范围外透明",kind:"trend",ticks:["下降","接近稳定","上升"]}
-    }[mode];
-    document.querySelector(`[data-mode="${mode}"]`).classList.add("active");
-    document.querySelectorAll("[data-mode]").forEach(a=>a.href=`?mode=${a.dataset.mode}`);
-    title.textContent=cfg.title;subtitle.textContent=cfg.sub;legend.classList.add(cfg.kind);[lo,mid,hi].forEach((e,i)=>e.textContent=cfg.ticks[i]);
-    fetch("assets/ndvi/bounds_3857.json").then(r=>r.json()).then(meta=>{
-      const extent=new Extent({xmin:meta.extent[0],ymin:meta.extent[1],xmax:meta.extent[2],ymax:meta.extent[3],spatialReference:{wkid:3857}});
-      const base=new WebTileLayer({urlTemplate:"https://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineCommunity/MapServer/tile/{level}/{row}/{col}",copyright:"GeoQ 全国基础底图"});
-      const image=new ImageElement({image:cfg.file,georeference:{type:"extent-and-rotation",extent}});
-      const media=new MediaLayer({title:cfg.title,source:[image],opacity:.94});
-      const map=new Map({layers:[base,media]});
-      const view=new MapView({container:"viewDiv",map,extent,padding:{top:24,right:24,bottom:24,left:24},constraints:{minZoom:2,maxZoom:10}});
-      view.when(()=>view.goTo(extent.expand(1.03)));
-    });
-  });
-  </script>
-</body></html>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>八项森林工程 NDVI 交互地图</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>html,body,#map{height:100%;width:100%;margin:0}body{font-family:"Microsoft YaHei",sans-serif;background:#eef2ef}.panel{position:absolute;z-index:800;left:18px;top:18px;width:min(365px,calc(100% - 36px));padding:14px 16px;border:1px solid rgba(31,63,46,.16);border-radius:8px;background:rgba(255,255,255,.95);box-shadow:0 8px 26px rgba(25,54,39,.18);backdrop-filter:blur(8px)}h1{font-size:18px;margin:0 0 6px;color:#173d2b}.sub{font-size:12px;line-height:1.65;color:#596a60}.legend{height:10px;border-radius:3px;margin-top:10px}.legend.ndvi{background:linear-gradient(90deg,#a50026,#f46d43,#ffffbf,#66bd63,#006837)}.legend.trend{background:linear-gradient(90deg,#b2182b,#ef8a62,#f7f7f7,#67a9cf,#2166ac)}.ticks{display:flex;justify-content:space-between;font-size:11px;color:#647068;margin-top:4px}.modes{display:flex;gap:6px;margin-top:11px}.modes a{padding:5px 9px;border:1px solid #bac8bf;border-radius:4px;color:#264d39;text-decoration:none;font-size:12px;background:#fff}.modes a.active{background:#275b42;color:#fff;border-color:#275b42}@media(max-width:640px){.panel{left:10px;right:10px;top:10px;width:auto;padding:10px 12px}h1{font-size:16px}.sub{font-size:11px}}</style></head>
+<body><div id="map"></div><section class="panel"><h1 id="title"></h1><div class="sub" id="subtitle"></div><div id="legend" class="legend"></div><div class="ticks"><span id="lo"></span><span id="mid"></span><span id="hi"></span></div><nav class="modes"><a data-mode="2001">2001</a><a data-mode="2024">2024</a><a data-mode="trend">变化趋势</a></nav></section>
+<script>const mode=new URLSearchParams(location.search).get("mode")||"2024";const cfg={"2001":{file:"ndvi_2001_project_clip_3857.png",title:"2001 年工程区 NDVI",sub:"年度最大 NDVI｜工程联合范围外透明｜与 2024 年使用同一值域和色带",kind:"ndvi",ticks:["-0.14","0.41","0.96"]},"2024":{file:"ndvi_2024_project_clip_3857.png",title:"2024 年工程区 NDVI",sub:"年度最大 NDVI｜工程联合范围外透明｜与 2001 年使用同一值域和色带",kind:"ndvi",ticks:["-0.14","0.41","0.96"]},"trend":{file:"ndvi_trend_project_clip_3857.png",title:"2001-2024 年 NDVI 趋势",sub:"5 km 网格年变化率｜棕红表示下降，蓝色表示上升｜工程范围外透明",kind:"trend",ticks:["下降","接近稳定","上升"]}}[mode];document.querySelector(`[data-mode="${mode}"]`).classList.add("active");document.querySelectorAll("[data-mode]").forEach(a=>a.href=`?mode=${a.dataset.mode}`);title.textContent=cfg.title;subtitle.textContent=cfg.sub;legend.classList.add(cfg.kind);[lo,mid,hi].forEach((e,i)=>e.textContent=cfg.ticks[i]);const map=L.map("map",{minZoom:2,maxZoom:10});L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"OpenStreetMap",maxZoom:19}).addTo(map);fetch("bounds_3857.json").then(r=>r.json()).then(meta=>{const e=meta.extent,sw=L.CRS.EPSG3857.unproject(L.point(e[0],e[1])),ne=L.CRS.EPSG3857.unproject(L.point(e[2],e[3])),bounds=L.latLngBounds(sw,ne);L.imageOverlay(cfg.file,bounds,{opacity:.92,interactive:false}).addTo(map);map.fitBounds(bounds,{padding:[22,22]})});</script></body></html>
